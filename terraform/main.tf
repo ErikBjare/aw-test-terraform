@@ -32,9 +32,20 @@ resource "docker_container" "activitywatch_vm" {
       ipv4_address = "172.18.1.${count.index + 1}"
   }
 
+  // SSH
   ports {
     internal = 22
     external = 22020 + count.index + 1
+  }
+  // VNC
+  ports {
+    internal = 5901
+    external = 5901 + count.index + 1
+  }
+  // ActivityWatch
+  ports {
+    internal = 5600
+    external = 5600 + count.index + 1
   }
 }
 
@@ -47,10 +58,10 @@ resource "null_resource" "provision_activitywatch_vm" {
 
   provisioner "local-exec" {
     command = <<-EOT
+      sleep 5;
       SSH_PORT=${docker_container.activitywatch_vm[count.index].ports.*.external[0]}
       CONTAINER_IP=$(docker inspect ${docker_container.activitywatch_vm[count.index].id} --format '{{range .NetworkSettings.Networks}}{{.IPAMConfig.IPv4Address}}{{end}}')
       REMOTE_IPS=$(printf '%s ' ${join(" ", [for i in range(var.vm_count) : docker_container.activitywatch_vm[i].networks_advanced.*.ipv4_address[0] if i != count.index])} | tr ' ' '\n' | grep -v $${CONTAINER_IP} | paste -sd ' ' -)
-      echo 
       sshpass -p 'password' ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null desktopuser@localhost -p $${SSH_PORT} 'echo "*/5 * * * * /home/desktopuser/rsync_script.sh $${REMOTE_IPS}" | crontab -'
     EOT
   }

@@ -1,5 +1,5 @@
 # Use the official Ubuntu base image
-FROM ubuntu:22.04
+FROM --platform=linux/amd64 ubuntu:22.04
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive \
@@ -17,6 +17,8 @@ RUN apt-get update && \
         supervisor \
         rsync \
         cron \
+        xfonts-base \
+        libegl1 \
         sudo && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
@@ -78,6 +80,11 @@ COPY etc/supervisor/supervisord.conf /etc/supervisor/supervisord.conf
 
 # Needed for sshd, apparently
 RUN mkdir /run/sshd
+
+# Set up VNC password
+RUN mkdir -p /home/desktopuser/.vnc
+RUN bash -c "echo -e 'password\npassword\n\n' | vncpasswd '/home/desktopuser/.vnc/passwd'"
+RUN chown -R desktopuser:desktopuser /home/desktopuser
 
 # Expose the SSH and VNC port
 EXPOSE 22 5901
