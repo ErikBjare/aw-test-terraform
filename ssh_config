@@ -1,0 +1,5 @@
+# This file sets SSH options to disable strict host key checking and not save the host keys. 
+# This is useful for syncing with other containers where host keys may change.
+Host *
+    StrictHostKeyChecking no
+    UserKnownHostsFile /dev/null

@@ -1,7 +1,7 @@
 aw-test-terraform
 =================
 
-A multi-device ActivityWatch setup with sync, for testing purposes, using Terraform.
+A multi-device ActivityWatch setup with sync (using rsync), for testing purposes, using Docker & Terraform.
 
 NOTE: This was almost entirely generated using GPT4 (at least initial commit)
 
